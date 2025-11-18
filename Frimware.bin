@@ -55,9 +55,9 @@ void checkForUpdates() {
 void loop() {
   // LED Blink
   digitalWrite(ledPin, HIGH);
-  delay(500);
+  delay(1000);
   digitalWrite(ledPin, LOW);
-  delay(500);
+  delay(1000);
 
   // OTA check every 60 seconds
   if (millis() - lastMillis > 60000) {
@@ -65,4 +65,5 @@ void loop() {
     checkForUpdates();
   }
 }
+
 
