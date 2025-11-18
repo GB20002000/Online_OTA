@@ -2,25 +2,21 @@
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 
-// WiFi credentials
 const char* ssid     = "zeekers1";
 const char* password = "9629293943";
 
-// GitHub RAW firmware file URL
-String firmwareURL = "https://github.com/GB20002000/Online_OTA/edit/main/Frimware.bin";
+// GitHub RAW .bin link
+String firmwareURL = "https://github.com/GB20002000/Online_OTA/blob/main/Frimware.bin";
 
-// LED pin
 const int ledPin = 2;
-
 unsigned long lastMillis = 0;
 
 void setup() {
   Serial.begin(115200);
-
   pinMode(ledPin, OUTPUT);
 
-  Serial.println("Connecting WiFi...");
   WiFi.begin(ssid, password);
+  Serial.print("Connecting WiFi");
 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -28,28 +24,27 @@ void setup() {
   }
 
   Serial.println("\nWiFi Connected!");
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
 }
 
 void checkForUpdates() {
-  Serial.println("[OTA] Checking for update...");
+  Serial.println("[OTA] Checking for updates...");
 
-  // FIXED: pass .c_str()
-  t_httpUpdate_return ret = httpUpdate.update(firmwareURL.c_str());
+  HTTPClient http;
+  http.begin(firmwareURL);     // IMPORTANT for ESP32 v3.x.x
+
+  t_httpUpdate_return ret = httpUpdate.update(http);
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
-      Serial.printf("[OTA] Update failed: %s\n",
-        httpUpdate.getLastErrorString().c_str());
+      Serial.printf("[OTA] Update Failed: %s\n", httpUpdate.getLastErrorString().c_str());
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
-      Serial.println("[OTA] No update available");
+      Serial.println("[OTA] No Update Available");
       break;
 
     case HTTP_UPDATE_OK:
-      Serial.println("[OTA] Update successful, rebooting...");
+      Serial.println("[OTA] Update successful! Rebooting...");
       break;
   }
 }
@@ -57,11 +52,11 @@ void checkForUpdates() {
 void loop() {
   // LED Blink
   digitalWrite(ledPin, HIGH);
-  delay(2000);
+  delay(500);
   digitalWrite(ledPin, LOW);
-  delay(2000);
+  delay(500);
 
-  // OTA check every 60 seconds
+  // Check OTA every 60 sec
   if (millis() - lastMillis > 60000) {
     lastMillis = millis();
     checkForUpdates();
