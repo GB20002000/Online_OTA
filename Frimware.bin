@@ -1,0 +1,67 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <HTTPUpdate.h>
+
+// Your WiFi (from memory)
+const char* ssid     = "zeekers1";
+const char* password = "9629293943";
+
+// Your GitHub RAW .bin link
+String firmwareURL = "https://raw.githubusercontent.com/your_github_username/your_repo/main/firmware.bin";
+
+// LED pin
+const int ledPin = 2;
+
+unsigned long lastMillis = 0;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(ledPin, OUTPUT);
+
+  Serial.println("Connecting WiFi...");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+
+  Serial.println("\nWiFi Connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void checkForUpdates() {
+  Serial.println("[OTA] Checking for update...");
+  
+  t_httpUpdate_return ret = httpUpdate.update(firmwareURL);
+
+  switch (ret) {
+    case HTTP_UPDATE_FAILED:
+      Serial.printf("[OTA] Update failed: %s\n", httpUpdate.getLastErrorString().c_str());
+      break;
+
+    case HTTP_UPDATE_NO_UPDATES:
+      Serial.println("[OTA] No update available");
+      break;
+
+    case HTTP_UPDATE_OK:
+      Serial.println("[OTA] Update successful, rebooting...");
+      break;
+  }
+}
+
+void loop() {
+  // LED Blink
+  digitalWrite(ledPin, HIGH);
+  delay(500);
+  digitalWrite(ledPin, LOW);
+  delay(500);
+
+  // OTA check every 60 seconds
+  if (millis() - lastMillis > 60000) {
+    lastMillis = millis();
+    checkForUpdates();
+  }
+}
