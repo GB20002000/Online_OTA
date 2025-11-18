@@ -2,12 +2,12 @@
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
 
-// Your WiFi (from memory)
+// WiFi credentials
 const char* ssid     = "zeekers1";
 const char* password = "9629293943";
 
-// Your GitHub RAW .bin link
-String firmwareURL = "https://github.com/GB20002000/Online_OTA/blob/main/Frimware.bin";
+// GitHub RAW firmware file URL
+String firmwareURL = "https://github.com/GB20002000/Online_OTA/edit/main/Frimware.bin";
 
 // LED pin
 const int ledPin = 2;
@@ -34,12 +34,14 @@ void setup() {
 
 void checkForUpdates() {
   Serial.println("[OTA] Checking for update...");
-  
-  t_httpUpdate_return ret = httpUpdate.update(firmwareURL);
+
+  // FIXED: pass .c_str()
+  t_httpUpdate_return ret = httpUpdate.update(firmwareURL.c_str());
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
-      Serial.printf("[OTA] Update failed: %s\n", httpUpdate.getLastErrorString().c_str());
+      Serial.printf("[OTA] Update failed: %s\n",
+        httpUpdate.getLastErrorString().c_str());
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
@@ -55,9 +57,9 @@ void checkForUpdates() {
 void loop() {
   // LED Blink
   digitalWrite(ledPin, HIGH);
-  delay(1000);
+  delay(2000);
   digitalWrite(ledPin, LOW);
-  delay(1000);
+  delay(2000);
 
   // OTA check every 60 seconds
   if (millis() - lastMillis > 60000) {
@@ -65,5 +67,3 @@ void loop() {
     checkForUpdates();
   }
 }
-
-
