@@ -5,8 +5,8 @@
 const char* ssid     = "zeekers1";
 const char* password = "9629293943";
 
-// GitHub RAW .bin link
-String firmwareURL = "https://github.com/GB20002000/Online_OTA/blob/main/Frimware.bin";
+// ✔ CORRECT RAW URL
+String firmwareURL = "https://raw.githubusercontent.com/GB20002000/Online_OTA/main/Frimware.bin";
 
 const int ledPin = 2;
 unsigned long lastMillis = 0;
@@ -26,23 +26,24 @@ void setup() {
   Serial.println("\nWiFi Connected!");
 }
 
-
 void checkForUpdates() {
   Serial.println("[OTA] Checking for updates...");
 
   HTTPClient http;
 
-  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);  // FIX #1
-  http.setUserAgent("ESP32-OTA-Updater");                 // FIX #2
+  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);  
+  http.setUserAgent("ESP32-OTA-Updater");
 
-  http.begin(firmwareURL);  // Your GitHub RAW URL
+  // ✔ FIX: MUST use .c_str()
+  http.begin(firmwareURL.c_str());
+
+  httpUpdate.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
 
   t_httpUpdate_return ret = httpUpdate.update(http);
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
-      Serial.printf("[OTA] Update Failed: %s\n",
-      httpUpdate.getLastErrorString().c_str());
+      Serial.printf("[OTA] Update Failed: %s\n", httpUpdate.getLastErrorString().c_str());
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
@@ -55,12 +56,9 @@ void checkForUpdates() {
   }
 }
 
-
 void loop() {
-  // LED Blink
- Serial.println("HELLO");
+  Serial.println("hello Running...");
 
-  // Check OTA every 60 sec
   if (millis() - lastMillis > 10000) {
     lastMillis = millis();
     checkForUpdates();
