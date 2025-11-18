@@ -26,17 +26,23 @@ void setup() {
   Serial.println("\nWiFi Connected!");
 }
 
+
 void checkForUpdates() {
   Serial.println("[OTA] Checking for updates...");
 
   HTTPClient http;
-  http.begin(firmwareURL);     // IMPORTANT for ESP32 v3.x.x
+
+  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);  // FIX #1
+  http.setUserAgent("ESP32-OTA-Updater");                 // FIX #2
+
+  http.begin(firmwareURL);  // Your GitHub RAW URL
 
   t_httpUpdate_return ret = httpUpdate.update(http);
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
-      Serial.printf("[OTA] Update Failed: %s\n", httpUpdate.getLastErrorString().c_str());
+      Serial.printf("[OTA] Update Failed: %s\n",
+      httpUpdate.getLastErrorString().c_str());
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
@@ -44,20 +50,18 @@ void checkForUpdates() {
       break;
 
     case HTTP_UPDATE_OK:
-      Serial.println("[OTA] Update successful! Rebooting...");
+      Serial.println("[OTA] Update Successful! Rebooting...");
       break;
   }
 }
 
+
 void loop() {
   // LED Blink
-  digitalWrite(ledPin, HIGH);
-  delay(500);
-  digitalWrite(ledPin, LOW);
-  delay(500);
+ Serial.println("HELLO");
 
   // Check OTA every 60 sec
-  if (millis() - lastMillis > 60000) {
+  if (millis() - lastMillis > 10000) {
     lastMillis = millis();
     checkForUpdates();
   }
