@@ -7,7 +7,7 @@ const char* ssid     = "zeekers1";
 const char* password = "9629293943";
 
 // Your GitHub RAW .bin link
-String firmwareURL = "https://raw.githubusercontent.com/your_github_username/your_repo/main/firmware.bin";
+String firmwareURL = "https://github.com/GB20002000/Online_OTA/blob/main/Frimware.bin";
 
 // LED pin
 const int ledPin = 2;
@@ -65,3 +65,4 @@ void loop() {
     checkForUpdates();
   }
 }
+
